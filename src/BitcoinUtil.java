@@ -27,34 +27,39 @@ public class BitcoinUtil extends BitcoinJSONRPCClient {
 	 * @throws MalformedURLException
 	 * @throws FileNotFoundException
 	 */
-	public static BitcoinUtil startBitcoin() throws MalformedURLException,FileNotFoundException {
+	public static BitcoinUtil startBitcoin() throws MalformedURLException,
+			FileNotFoundException {
 
 		Auth.initAuth();
 		return new BitcoinUtil();
 	}
 
-	
-	public int getNumConf(String addr) {
 
-		List<ReceviedAddress> allTxRec = null;
+	public Transaction waitForTx(String betAddr) {
 
-		try {
-			allTxRec = listReceivedByAddress(0, false);
-		} catch (BitcoinException e) {
-			e.printStackTrace();
-			return -1;
-		}
-
-		for (ReceviedAddress r : allTxRec) {
-
-			if (r.address().equals(addr)) {
-				return r.confirmations();
+		List<Transaction> txList = null;
+		
+		while (true) {
+			
+			try {
+				txList = listTransactions("roulette");
+			} catch (BitcoinException e) {
+				e.printStackTrace();
+				return null;
+			}
+			
+			for(Transaction tx : txList){
+				if(tx.address().equals(betAddr))
+					return tx;
 			}
 
+			/* Wait 20 seconds */
+			try {
+				Thread.sleep(20 * 1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-
-		return -1;
-
 	}
 
 }
