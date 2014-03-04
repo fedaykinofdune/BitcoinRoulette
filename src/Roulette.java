@@ -30,10 +30,17 @@ import com.azazar.bitcoin.jsonrpcclient.Bitcoin.RawTransaction;
 import com.azazar.bitcoin.jsonrpcclient.Bitcoin.Transaction;
 import com.azazar.bitcoin.jsonrpcclient.BitcoinException;
 
+/**
+ * Roulette game logic / graphics
+ * @author Brian
+ *
+ */
 public class Roulette {
 
 	private BitcoinUtil bitcoinUtil;
 	private Fund fund;
+	private final int reqConfirmations = 0;
+	private final Color bg = new Color(19,20,19);
 	final JFrame frame = new JFrame("Bitcoin Roulette");
 	final JPanel pan = new JPanel();
 
@@ -55,32 +62,37 @@ public class Roulette {
 		/* Initialize GUI */
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(1024, 768));
+		frame.setBackground(bg);
 
 		Container framePane = frame.getContentPane();
 		framePane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		framePane.setBackground(Color.WHITE);
+		framePane.setBackground(bg);
 		framePane.setLayout(new BorderLayout());
 
 		JLabel title = new JLabel("Bitcoin Roulette");
+		title.setForeground(Color.WHITE);
 		title.setFont(new Font("Sans Serif", Font.BOLD, 50));
 		title.setHorizontalAlignment(JLabel.CENTER);
 		title.setBorder(BorderFactory.createRaisedBevelBorder());
-		framePane.add(title, BorderLayout.PAGE_START);
+		framePane.add(title, BorderLayout.NORTH);
 
-		pan.setBackground(Color.WHITE);
 		framePane.add(pan, BorderLayout.CENTER);
+		pan.setBackground(bg);
 		pan.setLayout(new BoxLayout(pan, BoxLayout.PAGE_AXIS));
-		pan.setBorder(new EmptyBorder(100, 10, 10, 10));
+		pan.setBorder(new EmptyBorder(60, 10, 10, 10));
 
-		JButton startBtn = new JButton("Fund Account");
+		final JButton startBtn = new JButton("Fund Account");
 		startBtn.setFont(new Font("Sans Serif", Font.PLAIN, 20));
-		startBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+		startBtn.setAlignmentX(JButton.CENTER_ALIGNMENT);
 
 		/* When fund account is clicked */
 		startBtn.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				
+				startBtn.setVisible(false);
 
 				/* Step1: get new addr (in worker thread) */
 				new SwingWorker<Fund, Object>() {
@@ -98,18 +110,32 @@ public class Roulette {
 
 						try {
 
+							JPanel fundAddrPanel = new JPanel();
+							fundAddrPanel.setLayout(new BoxLayout(fundAddrPanel, BoxLayout.PAGE_AXIS) );
+							fundAddrPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
+							fundAddrPanel.setMaximumSize(new Dimension(999999, 250));
+							pan.add(fundAddrPanel);
+							
+							JLabel sendBtcTitle = new JLabel("Send BTC to this address:");
+							sendBtcTitle.setFont(new Font("Sans Serif", Font.BOLD,20));
+							sendBtcTitle.setHorizontalAlignment(JLabel.CENTER);
+							sendBtcTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+							fundAddrPanel.add(sendBtcTitle);
+							
 							addrTitle = new JTextField(get().getAddr());
 							addrTitle.setEditable(false);
 							addrTitle.setFont(new Font("Sans Serif", Font.BOLD,
-									30));
+									35));
 							addrTitle.setHorizontalAlignment(JLabel.CENTER);
-							addrTitle.setBorder(BorderFactory
-									.createRaisedBevelBorder());
-							pan.add(addrTitle, BorderLayout.CENTER);
+							addrTitle.setPreferredSize(new Dimension(50,50));
+							fundAddrPanel.add(addrTitle);
+							frame.pack();
+							
+				
 							frame.pack();
 
 							/* */
-							waitForConfirmations(3);
+							waitForConfirmations(reqConfirmations);
 
 						} catch (InterruptedException | ExecutionException e) {
 							e.printStackTrace();
@@ -136,19 +162,51 @@ public class Roulette {
 		new SwingWorker<Object, Integer>() {
 			
 			JLabel numConfLabel;
+			JButton startRoulette;
 
 			@Override
 			protected Object doInBackground() throws Exception {
 
+				/* Waits for user to send BTC */
 				Transaction betTx = bitcoinUtil.waitForTx(fund.getAddr());
 				
+				/* Create confirmations panel*/
+				
+				JPanel confPanel = new JPanel();
+				confPanel.setLayout(new BoxLayout(confPanel, BoxLayout.PAGE_AXIS) );
+				confPanel.setMaximumSize(new Dimension(999999, 100));
+				confPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+				pan.add(confPanel);
+				
+				JPanel align = new JPanel();
+				align.setLayout(new BoxLayout(align, BoxLayout.PAGE_AXIS));
+				align.setMaximumSize(new Dimension(400, 100));
+				align.setAlignmentX(Component.CENTER_ALIGNMENT);
+				confPanel.add(align);
+				
+				JLabel fundAmt = new JLabel("Amount funded: "+betTx.amount()+ " BTC");
+				fundAmt.setFont(new Font("Sans Serif", Font.BOLD,25));
+				align.add(fundAmt);
+				
 				numConfLabel = new JLabel("0 Confirmations");
-				pan.add(numConfLabel,BorderLayout.CENTER);
-				frame.pack();
+				numConfLabel.setFont(new Font("Sans Serif", Font.BOLD,20));
+				align.add(numConfLabel);
 				
-				System.out.println("User sent a transaction worth "+betTx.amount());
 				
-				pan.add(new JLabel("AMT: "+betTx.amount()));
+				JPanel startRouletteWrapper = new JPanel();
+				startRouletteWrapper.setLayout(new BoxLayout(startRouletteWrapper, BoxLayout.PAGE_AXIS));
+				startRouletteWrapper.setMaximumSize(new Dimension(999999, 200));
+				startRouletteWrapper.setBorder(new EmptyBorder(40, 0, 0, 0));
+				startRouletteWrapper.setBackground(bg);
+				
+				startRoulette = new JButton();
+				startRoulette.setFont(new Font("Sans Serif", Font.BOLD,30));
+				startRoulette.setText("Waiting for "+reqConfirmations+ " confirmations...");
+				startRoulette.setAlignmentX(Component.CENTER_ALIGNMENT);
+				startRouletteWrapper.add(startRoulette);
+				
+				pan.add(startRouletteWrapper);
+				
 				frame.pack();
 				
 				RawTransaction betTxRaw = betTx.raw();
@@ -198,23 +256,42 @@ public class Roulette {
 				
 				int max = -1;
 				
-				System.out.println("Proccess called");
+				
 				for(int i: conf)
-				{
 					if(i > max)
 						max = i;
-					System.out.print(i+" ");
-				}
-				System.out.println("");
 				
-				numConfLabel.setText(max+" Confirmations");
+					numConfLabel.setText(max + (max==1 ? " Confirmation" : " Confirmations"));
 
 			}
 
+			/**
+			 * Funding confirmed, ready to start game
+			 */
 			@Override
 			protected void done() {
 				
-				initBoard();
+				startRoulette.setText("Start Roulette");
+				
+				startRoulette.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						
+						pan.setVisible(false);
+						
+						JPanel board = new JPanel();
+						board.setBackground(bg);
+						JLabel rouletteboard = new JLabel("ROULETTE BOARD");
+						rouletteboard.setForeground(Color.WHITE);
+						board.add(rouletteboard);
+						frame.add(board);
+						
+						frame.pack();
+						
+						initBoard();
+					}
+				});
 			}
 
 		}.execute();

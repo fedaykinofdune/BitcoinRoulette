@@ -14,6 +14,7 @@ public class Fund {
 
 	public Fund(BitcoinUtil util) {
 		bitcoinUtil = util;
+		fundAddr = "SAfasd45fsdafs34534adasdf";
 	}
 
 	public String getAddr() {
@@ -32,7 +33,6 @@ public class Fund {
 			System.out.println("Cant gen new Addr");
 		}
 
-		System.out.println("Fund#getfundaddr: " + betAddr);
 		fundAddr = betAddr;
 		
 		return this;
