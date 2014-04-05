@@ -1,2 +1,3 @@
 *.priv
 *.class
+/bin
