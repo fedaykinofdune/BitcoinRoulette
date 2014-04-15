@@ -1,3 +1,4 @@
+package core;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -51,6 +52,7 @@ public class Roulette {
 		} catch (MalformedURLException | FileNotFoundException e) {
 			e.printStackTrace();
 			System.out.println("Couldnt initialize Roulette");
+			return;
 		}
 
 		fund = new Fund(bitcoinUtil);

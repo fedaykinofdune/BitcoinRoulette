@@ -1,11 +1,5 @@
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.SwingWorker;
-
+package core;
 import com.azazar.bitcoin.jsonrpcclient.BitcoinException;
-import com.azazar.bitcoin.jsonrpcclient.Bitcoin.RawTransaction;
-import com.azazar.bitcoin.jsonrpcclient.Bitcoin.Transaction;
 
 public class Fund {
 
