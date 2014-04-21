@@ -9,11 +9,10 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import core.Roulette;
 
 public class Main {
 	
-	private static JFrame frame;
+	public static JFrame frame;
 	public static Image BGIMG;
 	public static Image TITLEIMG;
 	
@@ -30,17 +29,10 @@ public class Main {
 		TITLEIMG = ImageIO.read(new File("assets/title.png")); 
 		} catch (IOException e) {
 			
-			System.err.println();
+			System.err.println(e);
+			return;
 		}
 
-		
-		
-	}
-	
-	
-	public JFrame getFrame(){
-		
-		return frame;
 	}
 	
 

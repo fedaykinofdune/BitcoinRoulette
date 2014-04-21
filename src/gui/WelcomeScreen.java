@@ -21,7 +21,6 @@ public class WelcomeScreen extends JPanel {
 		
 		setLayout(new GridBagLayout());
 		
-		
 		JButton title = new JButton(){
 			
 			/* Serializable */
@@ -55,7 +54,10 @@ public class WelcomeScreen extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-					new Roulette().startGame();
+					setVisible(false);
+					//new Roulette().startGame();
+					Main.frame.add(new RouletteView());
+					Main.frame.pack();
 			}
 		});
 		

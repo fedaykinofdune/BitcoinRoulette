@@ -17,7 +17,7 @@ public final class Auth {
 	 */
 	public static final void initAuth() throws FileNotFoundException{
 
-		Scanner cin = new Scanner(new File("Auth.priv"));
+		Scanner cin = new Scanner(new File("assets/Auth.priv"));
 		
 		/* Configured in bitcoin.conf */
 		final String rpcuser = cin.nextLine();
