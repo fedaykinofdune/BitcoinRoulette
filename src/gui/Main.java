@@ -7,7 +7,13 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
+
+import core.Dealer;
+import core.RouletteCore;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 public class Main {
@@ -16,7 +22,8 @@ public class Main {
 	public static Image BGIMG;
 	public static Image TITLEIMG;
 	
-	private void init(){
+
+	public static void main(String[]args) {
 		
 		frame = new JFrame();
 		frame.setVisible(true);
@@ -32,14 +39,11 @@ public class Main {
 			System.err.println(e);
 			return;
 		}
-
-	}
-	
-
-	public static void main(String[]args) {
 		
-		 new Main().init();
-		 frame.add(new WelcomeScreen());
+		 
+		 RouletteCore core = new RouletteCore();
+		 
+		 frame.add(new WelcomeScreen(core));
 		 frame.pack();
 	}
 	

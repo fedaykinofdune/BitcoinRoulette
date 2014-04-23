@@ -10,30 +10,18 @@ import com.azazar.bitcoin.jsonrpcclient.BitcoinJSONRPCClient;
 
 public class BitcoinUtil extends BitcoinJSONRPCClient {
 
+	
+	private boolean cancelled;
+	
 	/**
-	 * PRIVATE constructor. Only called from startBitcoin()
-	 * 
 	 * @throws MalformedURLException
 	 */
-	private BitcoinUtil() throws MalformedURLException {
+	public BitcoinUtil() throws MalformedURLException {
 
 		super("http://localhost:8332");
-
+		cancelled = false;
 	}
 
-	/**
-	 * Creates authentication before instantiating class
-	 * 
-	 * @return a new BitcoinUtil
-	 * @throws MalformedURLException
-	 * @throws FileNotFoundException
-	 */
-	public static BitcoinUtil startBitcoin() throws MalformedURLException,
-			FileNotFoundException {
-
-		Auth.initAuth();
-		return new BitcoinUtil();
-	}
 
 
 	public Transaction waitForTx(String betAddr) {
@@ -42,6 +30,14 @@ public class BitcoinUtil extends BitcoinJSONRPCClient {
 		
 		while (true) {
 			
+			System.out.println("Waiting for BTC at " + betAddr);
+			
+			if(cancelled){
+				System.out.println("TX cancelled");
+				cancelled = false;
+				return null;
+			}
+			
 			try {
 				txList = listTransactions("roulette");
 			} catch (BitcoinException e) {
@@ -49,18 +45,39 @@ public class BitcoinUtil extends BitcoinJSONRPCClient {
 				return null;
 			}
 			
-			for(Transaction tx : txList){
+			for(Transaction tx : txList){{
+				
 				if(tx.address().equals(betAddr))
 					return tx;
 			}
+			}
 
-			/* Wait 20 seconds */
+			/* Wait 10 seconds */
 			try {
-				Thread.sleep(20 * 1000);
+				Thread.sleep(10 * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void cancelWaitTx(){
+		cancelled = true;
+	}
+	
+	public String getNewFundAddr() {
+
+		/* Generate new address for user to send bet to */
+		String betAddr = "FAIL";
+
+		try {
+			betAddr = getNewAddress("roulette");
+		} catch (BitcoinException e) {
+			e.printStackTrace();
+			System.out.println("Cant gen new Addr");
+		}
+		
+		return betAddr;
 	}
 
 }
