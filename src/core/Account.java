@@ -8,7 +8,7 @@ public class Account {
 	public Account(){
 		
 		address = "UNINIT";
-		balance = 1;
+		balance = 0;
 		
 	}
 
